@@ -1,0 +1,17 @@
+---
+# tasks file for roles/supervisor
+
+- name: Install Supervisor Package
+  yum: name=supervisor state=latest
+  tags:
+    - supervisor
+
+
+- name: Configuration to PHP
+  template: src={{ item }} dest=/etc/supervisord.d/{{ item }}
+  with_items:
+    - mjq.ini
+    - skyfire.ini
+  tags:
+    - supervisord
+  notify: restart supervisord

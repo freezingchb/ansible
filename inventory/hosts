@@ -1,0 +1,10 @@
+web181 ansible_ssh_host=192.168.1.181 ansible_ssh_port=22 ansible_ssh_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa.hl
+web119 ansible_ssh_host=192.168.1.119 ansible_ssh_port=2222 ansible_ssh_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa.hl
+
+
+[hualiang]
+web1 ansible_ssh_host=120.27.20.60 ansible_ssh_port=2018 ansible_ssh_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa.hl
+db1 ansible_ssh_host=47.105.99.96 ansible_ssh_port=22 ansible_ssh_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa.hl
+
+
+

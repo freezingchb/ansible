@@ -1,0 +1,33 @@
+---
+# defaults file for nginx
+
+primary_domain: meijiequan.localx
+
+# nginx config variables
+nginx_hosts: [
+  {
+    listen: 80,
+    server_name: "120.27.20.60 sell.meijiequan.com sell.chuanboke.net adm.meijiequan.com",
+    index: "index.php index.html index.htm",
+    root: /usr/share/nginx/html/sell/public,
+    fastcgi_pass_host: 127.0.0.1,
+    fastcgi_pass_port: 9000,
+    log_name: sell,
+    certificate_file: /opt/ssl/fullchain.pem,
+    certificate_pem_key: /opt/ssl/privkey.pem,
+    client_max_body_size: 20M
+  },
+  {
+    listen: 80,
+    server_name: "*.meijiequan.com *.chuanboke.net meijiequan.com",
+    index: "index.php index.html index.htm",
+    root: /usr/share/nginx/html/mjq/public,
+    fastcgi_pass_host: 127.0.0.1,
+    fastcgi_pass_port: 9000,
+    log_name: www,
+    certificate_file: /opt/ssl/fullchain.pem,
+    certificate_pem_key: /opt/ssl/privkey.pem,
+    client_max_body_size: 20M
+  },
+]
+

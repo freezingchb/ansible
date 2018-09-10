@@ -1,0 +1,53 @@
+# nginx settings
+
+primary_domain: green.local
+
+nginx_hosts: [
+  {
+    listen: 80,
+    server_name: "sell.green.local sell.chuanboke.net adm.green.local",
+    index: "index.php index.html index.htm",
+    root: /usr/share/nginx/html/sell/public,
+    fastcgi_pass_host: 127.0.0.1,
+    fastcgi_pass_port: 9000,
+    log_name: sell,
+    certificate_file: /opt/ssl/fullchain.pem,
+    certificate_pem_key: /opt/ssl/privkey.pem,
+    client_max_body_size: 20M
+  },
+  {
+    listen: 80,
+    server_name: "*.green.local *.chuanboke.net",
+    index: "index.php index.html index.htm",
+    root: /usr/share/nginx/html/mjq/public,
+    fastcgi_pass_host: 127.0.0.1,
+    fastcgi_pass_port: 9000,
+    log_name: www,
+    certificate_file: /opt/ssl/fullchain.pem,
+    certificate_pem_key: /opt/ssl/privkey.pem,
+    client_max_body_size: 20M
+  },
+]
+
+
+# php-fpm settings
+fpm_listen: "127.0.0.1:9000"
+fpm_listen_allowed_clients: 127.0.0.1
+fpm_catch_workers_output: yes
+fpm_memory_limit: "300M"
+php_session_save_handler: files
+php_session_save_path: /var/opt/remi/php71/lib/php/session
+php_session_name: PHPSESSIONID
+fpm_session_gc_maxlifetime: 1440
+request_slowlog_timeout: 20
+
+
+# php settings
+php_expose_php: On
+php_display_errors: Off
+php_cgi_fix_pathinfo: 1
+php_allow_url_fopen: On
+php_timezone: Asia/Shanghai
+php_post_max_size: 20M
+upload_max_filesize: 20M
+php_memory_limit: 300M

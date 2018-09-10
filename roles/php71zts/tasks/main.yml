@@ -1,0 +1,199 @@
+---
+# tasks file for php 71
+- name: Prepare dependencies for making install php 7.1 zts
+  yum: name={{ item }} state=present
+  with_items:
+    - openssl-devel
+    - libpng-devel
+    - freetype-devel
+    - libmcrypt-devel
+    - mariadb-devel
+    - libticonv-devel
+    - re2c
+    - libxml2-devel
+    - libcurl-devel
+    - freetype-devel
+    - libjpeg-turbo-devel
+    - gcc
+
+- name: Make dir for source files
+  file: 
+    path: /opt/src
+    state: directory
+    mode: 0755
+  tags:
+    - php71zts
+
+- name: Download the php 7.1 src file.
+  get_url: 
+    url: http://101.96.10.64/jp2.php.net/distributions/php-7.1.21.tar.bz2
+    dest: /opt/src/php-7.1.21.tar.bz2
+    checksum: sha256:c2409c574bde23763b48a96b93922f530156df044585ff60108bce7b27b19580
+  tags:
+    - php71zts
+
+- name: Unarchive the php 7.1 src file.
+  unarchive: 
+    src: /opt/src/php-7.1.21.tar.bz2
+    dest: /opt/src/
+    copy: no
+  tags:
+    - php71zts
+
+- name: Configuring the php 7.1 src file.
+  command: ./configure --prefix=/opt/php-7.1.20 --with-curl --with-mcrypt --enable-mbstring --with-iconv --with-pdo-mysql=/usr/bin/mysql_config --with-mysqli=/usr/bin/mysql_config --with-mysql=/usr/bin/mysql_config --with-xmlrpc --with-XMLrpc --with-mysql-sock=/var/lib/mysql/mysql.sock --with-imap-ssl --with-kerberos --enable-calendar --enable-zip --enable-libxml --enable-session --enable-xml --enable-hash --with-pear --with-layout=GNU --enable-filter --with-pcre-regex --with-zlib --enable-simplexml --enable-dom --with-openssl --enable-pdo --with-gd --with-jpeg-dir=/usr/lib64/ --with-mhash --enable-sockets --with-gettext --enable-soap --enable-fpm --with-freetype-dir=/usr/include/freetype2/freetype/freetype.h --enable-maintainer-zts --enable-pthreads 
+  args:
+    chdir: /opt/src/php-7.1.21/
+  tags:
+    - php71zts
+
+- name: Making the php 7.1 src file.
+  command: make 
+  args:
+    chdir: /opt/src/php-7.1.21/
+  tags:
+    - php71zts
+
+
+- name: Making install the php 7.1 src file.
+  command: make install
+  args:
+    chdir: /opt/src/php-7.1.21/
+  tags:
+    - php71zts
+
+# installing pthreads
+- name: Clone the repository that could be maked for php 7.1
+  git:
+    repo: https://github.com/sjdskl/pthreads-php7.1.git
+    dest: /opt/src/pthreads-php7.1
+  tags:
+    - php71zts-pthreads
+
+- name: Phpize the pthreads for php 7.1.
+  command: /opt/php-7.1.20/bin/phpize
+  args:
+    chdir: /opt/src/pthreads-php7.1
+  tags:
+    - php71zts-pthreads
+
+- name: Configuring the pthreads for php 7.1.
+  command: ./configure --with-php-config=/opt/php-7.1.20/bin/php-config  --enable-pthreads
+  args:
+    chdir: /opt/src/pthreads-php7.1
+  tags:
+    - php71zts-pthreads
+
+- name: Making the pthreads for php 7.1.
+  command: make
+  args:
+    chdir: /opt/src/pthreads-php7.1
+  tags:
+    - php71zts-pthreads
+
+- name: Making install the pthreads for php 7.1.
+  command: make install
+  args:
+    chdir: /opt/src/pthreads-php7.1
+  tags:
+    - php71zts-pthreads
+
+# installing mjq extension
+
+- name: Clone the repository that could be maked for php 7.1
+  git:
+    repo: http://demo:demodemo@git.dev.chuanboke.net/hl/mjq-php-ext.git
+    dest: /opt/src/mjq-php-ext
+  tags:
+    - php71zts-mjq
+
+- name: Phpize the MJQ for php 7.1.
+  command: /opt/php-7.1.20/bin/phpize
+  args:
+    chdir: /opt/src/mjq-php-ext/ext/
+  tags:
+    - php71zts-mjq
+
+- name: Configuring the MJQ for php 7.1.
+  command: ./configure --with-php-config=/opt/php-7.1.20/bin/php-config
+  args:
+    chdir: /opt/src/mjq-php-ext/ext/
+  tags:
+    - php71zts-mjq
+
+- name: Making the MJQ for php 7.1.
+  command: make
+  args:
+    chdir: /opt/src/mjq-php-ext/ext/
+  tags:
+    - php71zts-mjq
+
+- name: Making install the MJQ for php 7.1.
+  command: make install
+  args:
+    chdir: /opt/src/mjq-php-ext/ext/
+  tags:
+    - php71zts-mjq
+
+# updating the config files.
+
+- name: Copy php71zts service file, php.ini, php-cli.ini, www.conf
+  template: 
+    src: '{{ item.src }}' 
+    dest: '{{ item.target }}'
+    mode: 0644
+  with_items:
+    - {src: php71zts-php-fpm.service.j2, target: /usr/lib/systemd/system/php71zts-php-fpm.service}
+    - {src: php.ini.j2, target: /opt/php-7.1.20/etc/php.ini}
+    - {src: php.ini.j2, target: /opt/php-7.1.20/etc/php-cli.ini}
+    - {src: www.conf.j2, target: /opt/php-7.1.20/etc/php-fpm.d/www.conf}
+  tags:
+    - php71zts-phpinfo
+
+- name: Systemctl Daemon-reload.
+  command: systemctl daemon-reload
+  tags:
+    - php71zts-phpinfo
+
+- name: Copy the php.ini file
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ item.target }}'
+    owner: root
+    group: root
+    mode: 0644
+    remote_src: yes
+  with_items:
+    # - {src: /opt/src/php-7.1.21/php.ini-development, target: /opt/php-7.1.20/etc/php.ini}
+    # - {src: /opt/php-7.1.20/etc/php.ini, target: /opt/php-7.1.20/etc/php-cli.ini}
+    - {src: /opt/php-7.1.20/etc/php-fpm.conf.default, target: /opt/php-7.1.20/etc/php-fpm.conf}
+    # - {src: /opt/php-7.1.20/etc/php-fpm.d/www.conf.default, target: /opt/php-7.1.20/etc/php-fpm.d/www.conf}
+  notify: restart php71zts-php-fpm 
+  tags:
+    - php71zts-phpinfo
+
+- name: Adding lines to php.ini and php-cli.ini files
+  lineinfile:
+    path: '{{ item.file }}'
+    line: '{{ item.line }}'
+  with_items:
+    - { file: /opt/php-7.1.20/etc/php.ini, line: extension=/opt/php-7.1.20/lib/php/20160303-zts/mjq.so }
+    - { file: /opt/php-7.1.20/etc/php-cli.ini, line: extension=/opt/php-7.1.20/lib/php/20160303-zts/mjq.so }
+    - { file: /opt/php-7.1.20/etc/php-cli.ini, line: 'extension=/opt/php-7.1.20/lib/php/20160303-zts/pthreads.so' }
+  notify: restart php71zts-php-fpm 
+  tags:
+    - php71zts-phpinfo
+
+
+
+# - name: Configuration to PHP
+#   template: src=php.ini.j2 dest=/etc/opt/remi/php71/php.ini
+#   tags:
+#     - php71zts
+#   notify: restart php71zts-php-fpm
+
+# - name: Configuration to PHP-FPM
+#   template: src=www.conf.j2 dest=/etc/opt/remi/php71/php-fpm.d/www.conf
+#   tags:
+#     - php71zts
+#   notify: restart php71zts-php-fpm

@@ -1,0 +1,5 @@
+---
+# handlers file for php71
+# 
+- name: restart php71zts-php-fpm
+  service: name=php71zts-php-fpm state=restarted enabled=yes daemon_reload=yes

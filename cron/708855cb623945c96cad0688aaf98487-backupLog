@@ -1,0 +1,4 @@
+#!/bin/bash
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+python /www/server/panel/script/logsBackup sell.chuanboke.net.log 10

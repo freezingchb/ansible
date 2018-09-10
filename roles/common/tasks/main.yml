@@ -1,0 +1,63 @@
+# ---
+# - name: Install Firewalld
+#   yum: name=firewalld state=present
+  
+# - name: Firewalld Service State
+#   service: name=firewalld state=started enabled=yes
+
+# - name: wait for ssh server to be running on vagrant box
+#   local_action: wait_for port=22 host=hpp.io search_regex=OpenSSH
+#   failed_when: False
+#   register: result
+
+
+
+- name: Enable the EPEL Repo
+  yum: name={{ item }} state=present
+  tags:
+    - common
+  with_items:
+    - epel-release
+    # - http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    - http://ftp.riken.jp/Linux/remi/enterprise/remi-release-7.rpm
+
+- name: Import The GPG Key of CentOS
+  rpm_key: state=present key={{ item }}
+  tags:
+    - common
+  with_items:
+    - /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+    - /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+    - /etc/pki/rpm-gpg/RPM-GPG-KEY-remi
+
+# - name: Update All The Packages
+#   yum: name="*" state=latest
+#   tags:
+#     - common
+
+- name: Install some debug tools
+  yum: name={{ item }} state=present
+  tags:
+    - common
+  with_items:
+    # - lsof
+    # - vim
+    # - tree
+    # - telnet
+    - bzip2
+    - git
+    
+
+- name: Replace to disable in selinux configuration file 1
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: 'SELINUX=disabled'
+    
+- name: Disable the selinux right now
+  selinux:
+    state: disabled
+
+
+
+    
